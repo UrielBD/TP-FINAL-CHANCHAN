@@ -1,10 +1,9 @@
-#Clase base para los objetos que ocupan una posición en el tablero del juego Pacman.
+
 
 from abc import ABC, abstractmethod
 import random
 
 
-# Símbolos de las tres clases de casilla que usa la matriz del laberinto.
 PARED = "#"
 PUNTO = "."
 CAMINO = " "
