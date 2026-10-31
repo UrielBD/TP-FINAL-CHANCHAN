@@ -121,7 +121,6 @@ class Pacman(Entidad):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        """Avanza una celda en la dirección elegida por el jugador."""
         desplazamiento = self._DESPLAZAMIENTOS[self.direccion]
         if desplazamiento == (0, 0):
             return
@@ -160,7 +159,6 @@ class Fantasma(Entidad):
 
     @property
     def nombre(self) -> str:
-        """Nombre identificador del fantasma."""
         return self._nombre
 
     @nombre.setter
@@ -171,11 +169,9 @@ class Fantasma(Entidad):
 
     @property
     def pos_inicial(self) -> tuple[int, int]:
-        """Posición original, expuesta como una tupla inmutable."""
         return self._pos_inicial
 
     def reiniciar_posicion(self) -> None:
-        """Vuelve a la posición inicial del fantasma."""
         self.pos_x, self.pos_y = self.pos_inicial
 
     # Herencia: Fantasma redefine actualizar() con movimiento autónomo.
