@@ -1,8 +1,5 @@
-
-from abc import ABC, abstractmethod
+rom abc import ABC, abstractmethod
 import random
-
-
 PARED = "#"
 PUNTO = "."
 CAMINO = " "
@@ -17,7 +14,6 @@ class Entidad(ABC):
 
     @property
     def pos_x(self) -> int:
-
         return self._pos_x
 
     @pos_x.setter
@@ -62,9 +58,9 @@ class Entidad(ABC):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
+     
 
 class Pacman(Entidad):
-
     _DESPLAZAMIENTOS = {
         "arriba": (0, -1),
         "abajo": (0, 1),
@@ -163,7 +159,6 @@ class Fantasma(Entidad):
     @nombre.setter
     def nombre(self, valor: str) -> None:
         if not isinstance(valor, str) or not valor.strip():
-            raise ValueError("El nombre del fantasma debe ser un texto no vacío.")
         self._nombre = valor
 
     @property
@@ -193,9 +188,10 @@ class Fantasma(Entidad):
 
 
 class TableroJuego:
+    """Administra el laberinto, las entidades y los ciclos de movimiento."""
 
     LABERINTO_PREDETERMINADO = [
-         list("################"),
+        list("################"),
         list("#....#.......#.#"),
         list("#.##.#.##....#.#"),
         list("#.##.#....#....#"),
@@ -212,11 +208,11 @@ class TableroJuego:
         list("####...#....####"),
         list("################"),
     ]
-    ]
     FANTASMAS_PREDETERMINADOS = (
-        ("Blinky", 9, 1, "red"),
-        ("Pinky", 1, 7, "pink"),
-        ("Inky", 9, 7, "cyan"),
+        ("Leiru", 14, 1, "blue"),
+        ("Atac", 4, 14, "pink"),
+        ("Edef", 11, 14, "green"),
+        ("Mairim", 8, 8, "red"),
     )
 
     def __init__(
@@ -337,6 +333,7 @@ class TableroJuego:
             self._puntaje += 10
 
     def actualizar_ciclo(self) -> None:
+        """Mueve las entidades y resuelve colisiones, puntos y victoria."""
         if self._juego_terminado:
             return
 
@@ -385,13 +382,11 @@ class TableroJuego:
         return False
 
     def _comprobar_victoria(self) -> None:
-        """Termina la partida cuando ya no quedan puntos en el laberinto."""
         if not any(PUNTO in fila for fila in self._laberinto):
             self._victoria = True
             self._juego_terminado = True
 
     def _reiniciar_posiciones_entidades(self) -> None:
-        """Devuelve Pacman y todos los fantasmas a sus posiciones iniciales."""
         self._pacman.reiniciar_posicion()
         for fantasma in self._fantasmas:
             fantasma.reiniciar_posicion()
