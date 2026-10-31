@@ -1,17 +1,14 @@
-"""Etapa 3: modelo completo con colisiones y condiciones de fin."""
 
 from abc import ABC, abstractmethod
 import random
 
 
-# Símbolos de las tres clases de casilla que usa la matriz del laberinto.
 PARED = "#"
 PUNTO = "."
 CAMINO = " "
 
 
 class Entidad(ABC):
-    """Clase base abstracta para los objetos que ocupan una posición."""
 
     def __init__(self, pos_x: int, pos_y: int, color: str) -> None:
         self.pos_x = pos_x
@@ -20,7 +17,7 @@ class Entidad(ABC):
 
     @property
     def pos_x(self) -> int:
-        """Coordenada horizontal de la entidad."""
+
         return self._pos_x
 
     @pos_x.setter
@@ -31,7 +28,6 @@ class Entidad(ABC):
 
     @property
     def pos_y(self) -> int:
-        """Coordenada vertical de la entidad."""
         return self._pos_y
 
     @pos_y.setter
@@ -42,7 +38,6 @@ class Entidad(ABC):
 
     @property
     def color(self) -> str:
-        """Color usado por la interfaz para representar la entidad."""
         return self._color
 
     @color.setter
@@ -52,7 +47,6 @@ class Entidad(ABC):
         self._color = valor
 
     def mover(self, desplazamiento_x: int, desplazamiento_y: int) -> None:
-        """Desplaza la entidad y valida la nueva posición."""
         for desplazamiento in (desplazamiento_x, desplazamiento_y):
             if isinstance(desplazamiento, bool) or not isinstance(desplazamiento, int):
                 raise ValueError("Los desplazamientos deben ser enteros.")
@@ -68,11 +62,8 @@ class Entidad(ABC):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        """Actualiza el estado de la entidad según su comportamiento."""
-
 
 class Pacman(Entidad):
-    """Personaje controlado por el jugador."""
 
     _DESPLAZAMIENTOS = {
         "arriba": (0, -1),
@@ -96,7 +87,6 @@ class Pacman(Entidad):
 
     @property
     def direccion(self) -> str:
-        """Dirección actual del personaje."""
         return self._direccion
 
     @direccion.setter
@@ -108,7 +98,6 @@ class Pacman(Entidad):
 
     @property
     def vidas(self) -> int:
-        """Cantidad de vidas restantes."""
         return self._vidas
 
     @vidas.setter
@@ -118,12 +107,10 @@ class Pacman(Entidad):
         self._vidas = valor
 
     def perder_vida(self) -> None:
-        """Descuenta una vida, sin permitir que el contador sea negativo."""
         if self.vidas > 0:
             self.vidas -= 1
 
     def reiniciar_posicion(self) -> None:
-        """Vuelve a la posición que tenía al ser creado."""
         self.pos_x, self.pos_y = self._pos_inicial
         self.direccion = "quieto"
 
@@ -132,7 +119,6 @@ class Pacman(Entidad):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        """Avanza una celda en la dirección elegida por el jugador."""
         desplazamiento = self._DESPLAZAMIENTOS[self.direccion]
         if desplazamiento == (0, 0):
             return
@@ -149,7 +135,6 @@ class Pacman(Entidad):
 
 
 class Fantasma(Entidad):
-    """Enemigo que elige autónomamente una dirección por actualización."""
 
     _DESPLAZAMIENTOS = (
         (0, -1),
@@ -173,7 +158,6 @@ class Fantasma(Entidad):
 
     @property
     def nombre(self) -> str:
-        """Nombre identificador del fantasma."""
         return self._nombre
 
     @nombre.setter
@@ -184,11 +168,9 @@ class Fantasma(Entidad):
 
     @property
     def pos_inicial(self) -> tuple[int, int]:
-        """Posición original, expuesta como una tupla inmutable."""
         return self._pos_inicial
 
     def reiniciar_posicion(self) -> None:
-        """Vuelve a la posición inicial del fantasma."""
         self.pos_x, self.pos_y = self.pos_inicial
 
     # Herencia: Fantasma redefine actualizar() con movimiento autónomo.
@@ -196,7 +178,6 @@ class Fantasma(Entidad):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        """Elige un paso aleatorio entre los movimientos disponibles."""
         if movimientos_permitidos is None:
             movimientos_validos = tuple(
                 (dx, dy)
@@ -212,18 +193,25 @@ class Fantasma(Entidad):
 
 
 class TableroJuego:
-    """Administra el laberinto, las entidades y los ciclos de movimiento."""
 
     LABERINTO_PREDETERMINADO = [
-        list("###########"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("###########"),
+         list("################"),
+        list("#....#.......#.#"),
+        list("#.##.#.##....#.#"),
+        list("#.##.#....#....#"),
+        list("#....#....#....#"),
+        list("#..###....#..#.#"),
+        list("#..#.....#...#.#"),
+        list("#.##.....#.....#"),
+        list("#.....#...##...#"),
+        list("#.####..#....#.#"),
+        list("#..#.#.##.####.#"),
+        list("#....#..#.##...#"),
+        list("#...##.##..#...#"),
+        list("#.#...........##"),
+        list("####...#....####"),
+        list("################"),
+    ]
     ]
     FANTASMAS_PREDETERMINADOS = (
         ("Blinky", 9, 1, "red"),
@@ -263,32 +251,26 @@ class TableroJuego:
 
     @property
     def laberinto(self) -> list[list[str]]:
-        """Devuelve una copia de la matriz para evitar cambios externos."""
         return [fila.copy() for fila in self._laberinto]
 
     @property
     def pacman(self) -> Pacman:
-        """Personaje de la partida."""
         return self._pacman
 
     @property
     def fantasmas(self) -> list[Fantasma]:
-        """Copia de la lista de fantasmas de la partida."""
         return self._fantasmas.copy()
 
     @property
     def puntaje(self) -> int:
-        """Puntos acumulados durante la partida."""
         return self._puntaje
 
     @property
     def juego_terminado(self) -> bool:
-        """Indica si la partida ya terminó."""
         return self._juego_terminado
 
     @property
     def victoria(self) -> bool:
-        """Indica si se alcanzó la condición de victoria."""
         return self._victoria
 
     @staticmethod
@@ -330,7 +312,6 @@ class TableroJuego:
             raise ValueError("Una entidad no puede comenzar sobre una pared.")
 
     def _movimientos_validos(self, entidad: Entidad) -> tuple[tuple[int, int], ...]:
-        """Calcula los pasos que llevan a casillas transitables del laberinto."""
         movimientos = (
             Pacman._DESPLAZAMIENTOS.values()
             if isinstance(entidad, Pacman)
@@ -356,7 +337,6 @@ class TableroJuego:
             self._puntaje += 10
 
     def actualizar_ciclo(self) -> None:
-        """Mueve las entidades y resuelve colisiones, puntos y victoria."""
         if self._juego_terminado:
             return
 
