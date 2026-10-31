@@ -1,8 +1,5 @@
-
 from abc import ABC, abstractmethod
 import random
-
-
 
 PARED = "#"
 PUNTO = "."
@@ -10,6 +7,7 @@ CAMINO = " "
 
 
 class Entidad(ABC):
+  
     def __init__(self, pos_x: int, pos_y: int, color: str) -> None:
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -61,10 +59,10 @@ class Entidad(ABC):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        raise NotImplementedError
 
 
 class Pacman(Entidad):
+
     _DESPLAZAMIENTOS = {
         "arriba": (0, -1),
         "abajo": (0, 1),
@@ -87,6 +85,7 @@ class Pacman(Entidad):
 
     @property
     def direccion(self) -> str:
+        """Dirección actual del personaje."""
         return self._direccion
 
     @direccion.setter
@@ -98,6 +97,7 @@ class Pacman(Entidad):
 
     @property
     def vidas(self) -> int:
+        """Cantidad de vidas restantes."""
         return self._vidas
 
     @vidas.setter
@@ -114,6 +114,7 @@ class Pacman(Entidad):
         self.pos_x, self.pos_y = self._pos_inicial
         self.direccion = "quieto"
 
+    # Herencia: Pacman redefine el comportamiento abstracto de Entidad.
     def actualizar(
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
@@ -134,6 +135,7 @@ class Pacman(Entidad):
 
 
 class Fantasma(Entidad):
+
     _DESPLAZAMIENTOS = (
         (0, -1),
         (0, 1),
@@ -156,6 +158,7 @@ class Fantasma(Entidad):
 
     @property
     def nombre(self) -> str:
+        """Nombre identificador del fantasma."""
         return self._nombre
 
     @nombre.setter
@@ -166,15 +169,19 @@ class Fantasma(Entidad):
 
     @property
     def pos_inicial(self) -> tuple[int, int]:
+        """Posición original, expuesta como una tupla inmutable."""
         return self._pos_inicial
 
     def reiniciar_posicion(self) -> None:
+        """Vuelve a la posición inicial del fantasma."""
         self.pos_x, self.pos_y = self.pos_inicial
 
+    # Herencia: Fantasma redefine actualizar() con movimiento autónomo.
     def actualizar(
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
+        """Elige un paso aleatorio entre los movimientos disponibles."""
         if movimientos_permitidos is None:
             movimientos_validos = tuple(
                 (dx, dy)
@@ -190,21 +197,30 @@ class Fantasma(Entidad):
 
 
 class TableroJuego:
+
     LABERINTO_PREDETERMINADO = [
-        list("###########"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("#.###.###.#"),
-        list("#.........#"),
-        list("###########"),
+        list("################"),
+        list("#....#.......#.#"),
+        list("#.##.#.##....#.#"),
+        list("#.##.#....#....#"),
+        list("#....#....#....#"),
+        list("#..###....#..#.#"),
+        list("#..#.....#...#.#"),
+        list("#.##.....#.....#"),
+        list("#.....#...##...#"),
+        list("#.####..#....#.#"),
+        list("#..#.#.##.####.#"),
+        list("#....#..#.##...#"),
+        list("#...##.##..#...#"),
+        list("#.#...........##"),
+        list("####...#....####"),
+        list("################"),
     ]
     FANTASMAS_PREDETERMINADOS = (
-        ("Blinky", 9, 1, "red"),
-        ("Pinky", 1, 7, "pink"),
-        ("Inky", 9, 7, "cyan"),
+        ("Leiru", 14, 1, "blue"),
+        ("Atac", 4, 14, "pink"),
+        ("Edef", 11, 14, "green"),
+        ("Mairim", 8, 8, "red"),
     )
 
     def __init__(
@@ -221,6 +237,7 @@ class TableroJuego:
 
         x_pacman, y_pacman = self._validar_posicion(pos_inicial_pacman)
         self._validar_casilla_transitable(x_pacman, y_pacman)
+        # Composición: el tablero crea y administra las entidades de esta partida.
         self._pacman = Pacman(x_pacman, y_pacman)
 
         configuracion_fantasmas = (
@@ -257,7 +274,8 @@ class TableroJuego:
 
     @property
     def victoria(self) -> bool:
-        return self._victoria
+            return self._victoria
+
 
     @staticmethod
     def _validar_posicion(posicion: tuple[int, int]) -> tuple[int, int]:
@@ -293,7 +311,7 @@ class TableroJuego:
     def _validar_casilla_transitable(self, x: int, y: int) -> None:
         x, y = self._validar_posicion((x, y))
         if y >= len(self._laberinto) or x >= len(self._laberinto[0]):
-            raise ValueError("la posición inicial debe estar dentro del laberinto.")
+            raise ValueError("La posición inicial debe estar dentro del laberinto.")
         if self._laberinto[y][x] == PARED:
             raise ValueError("Una entidad no puede comenzar sobre una pared.")
 
@@ -323,10 +341,11 @@ class TableroJuego:
             self._puntaje += 10
 
     def actualizar_ciclo(self) -> None:
+        """Mueve las entidades y recoge los puntos alcanzados por Pacman."""
         entidades: tuple[Entidad, ...] = (self._pacman, *self._fantasmas)
         for entidad in entidades:
             movimientos = self._movimientos_validos(entidad)
+            # Polimorfismo: cada entidad aplica su propio comportamiento.
             entidad.actualizar(movimientos)
             if entidad is self._pacman:
                 self._recoger_punto()
-
