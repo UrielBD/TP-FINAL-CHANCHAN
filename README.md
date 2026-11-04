@@ -1,5 +1,5 @@
 # TP-FINAL-CHANCHAN
 Trabajo final de programación
 Integrantes:
-Uriel Braslavsky 
+Uriel Braslavsky ,
 Catalina Ayala
