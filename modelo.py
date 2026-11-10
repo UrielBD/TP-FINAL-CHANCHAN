@@ -58,6 +58,7 @@ class Entidad(ABC):
         self,
         movimientos_permitidos: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
+     raise NotImplementedError("Las subclases deben implementar este método.")
 
 
 class Pacman(Entidad):
